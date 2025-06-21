@@ -34,7 +34,7 @@
         function notifyTyping() {
             socket.emit('typing');
         }
-
+    
         socket.on('message', (data) => {
             const messages = document.getElementById('messages');
             messages.innerHTML += `<p><strong>${data.pseudo}:</strong> ${data.message} <em>(${new Date(data.date).toLocaleTimeString()})</em></p>`;
