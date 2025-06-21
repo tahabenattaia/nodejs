@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat App</title>
+</head>
+<body>
+    <h1>Chat en temps réel</h1>
+    <input type="text" id="pseudo" placeholder="Entrez votre pseudo" />
+    <button onclick="setPseudo()">Entrer</button>
+
+    <div id="chat" style="display:none;">
+        <div id="notifications"></div>
+        <div id="messages"></div>
+        <input type="text" id="message" onkeyup="notifyTyping()" placeholder="Message..." />
+        <button onclick="sendMessage()">Envoyer</button>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        function setPseudo() {
+            const pseudo = document.getElementById('pseudo').value;
+            socket.emit('new_user', pseudo);
+            document.getElementById('chat').style.display = 'block';
+        }
+
+        function sendMessage() {
+            const msg = document.getElementById('message').value;
+            socket.emit('message', { message: msg });
+            document.getElementById('message').value = '';
+        }
+
+        function notifyTyping() {
+            socket.emit('typing');
+        }
+
+        socket.on('message', (data) => {
+            const messages = document.getElementById('messages');
+            messages.innerHTML += `<p><strong>${data.pseudo}:</strong> ${data.message} <em>(${new Date(data.date).toLocaleTimeString()})</em></p>`;
+        });
+
+        socket.on('notification', (text) => {
+            document.getElementById('notifications').innerHTML += `<p><em>${text}</em></p>`;
+        });
+
+        socket.on('typing', (text) => {
+            document.getElementById('notifications').innerHTML = `<p><em>${text}</em></p>`;
+        });
+    </script>
+</body>
+</html>
